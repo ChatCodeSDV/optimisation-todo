@@ -1,11 +1,11 @@
-import sqlite3 from "sqlite3";
+import sqlite3 from 'sqlite3'
 
-const dblite = new sqlite3.Database("./database.sqlite", (err) => {
+const dblite = new sqlite3.Database('./database.sqlite', (err) => {
   if (err) {
-    console.error("Error opening database:", err.message);
+    console.error('Error opening database:', err.message)
   } else {
-    console.log("Connected to SQLite database.");
+    console.log('Connected to SQLite database.')
   }
-});
+})
 
-export default dblite;
+export default dblite

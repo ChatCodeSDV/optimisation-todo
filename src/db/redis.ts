@@ -1,13 +1,13 @@
-import { createClient } from "redis";
+import { createClient } from 'redis'
 
-const redisClient = createClient();
+const redisClient = createClient()
 
-redisClient.on("error", (err) => {
-  console.error("Redis error:", err);
-});
+redisClient.on('error', (err) => {
+  console.error('Redis error:', err)
+})
 
 redisClient.connect().then(() => {
-  console.log("Connected to Redis.");
-});
+  console.log('Connected to Redis.')
+})
 
-export default redisClient;
+export default redisClient

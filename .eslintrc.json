@@ -1,0 +1,23 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "overrides": [
+    {
+      "files": ["*.js", "*.jsx"],
+      "parser": "espree",
+      "plugins": [],
+      "extends": ["eslint:recommended"],
+      "rules": {
+        // JS-specific rules (optional)
+      }
+    }
+  ],
+  "rules": {
+    // Common rules for all files
+  }
+}
