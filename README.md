@@ -66,10 +66,12 @@ To set up and run the Todo API optimisation project, follow these steps:
    pnpm install
    ```
 
-3. Start the services using Docker Compose:
+3. Build the services using Docker Compose:
 
    ```bash
    docker-compose up --build
+   # Or using pnpm script
+    pnpm docker:start
    ```
 
 4. Access the API:
