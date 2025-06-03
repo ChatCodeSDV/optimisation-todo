@@ -1,0 +1,12 @@
+.env
+node_modules
+DS_Store
+DS_STORE
+*.log
+*.tmp
+*.bak
+.dist
+
+/grafana/*
+!/grafana/dashboards.json
+!/grafana/dashboards.yml

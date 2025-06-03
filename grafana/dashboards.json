@@ -1,0 +1,27 @@
+{
+  "title": "TODO API Metrics (Example)",
+  "description": "Dashboard for monitoring TODO API metrics (Example : needs to be implemented with real data from prometheus and K6)",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "HTTP Requests Latency",
+      "targets": [
+        {
+          "expr": "http_request_duration_seconds",
+          "legendFormat": "{{method}} {{status}}",
+          "interval": "15s"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Total HTTP Requests",
+      "targets": [
+        {
+          "expr": "http_requests_total",
+          "legendFormat": "Total Requests"
+        }
+      ]
+    }
+  ]
+}
