@@ -13,6 +13,7 @@ const limiter = rateLimit({
 export default limiter*/
 
 import { rateLimit } from 'express-rate-limit'
+import logger from './logger'
 
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -20,6 +21,9 @@ const limiter = rateLimit({
   standardHeaders: true, // Use `RateLimit-*` headers
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
   handler: (req, res) => {
+    logger.warn(
+      `Rate limit exceeded for IP: ${req.ip} - ${req.method} ${req.originalUrl}`
+    )
     res.status(429).json({
       error: 'Too many requests, slow down!'
     })
