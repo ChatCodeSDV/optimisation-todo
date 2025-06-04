@@ -1,4 +1,4 @@
-import { rateLimit } from 'express-rate-limit'
+/*import { rateLimit } from 'express-rate-limit'
 
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -7,6 +7,22 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   handler: (req, res) => {
     res.status(429).json({ error: 'Too many requests, slow down!' })
+  }
+})
+
+export default limiter*/
+
+import { rateLimit } from 'express-rate-limit'
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 100, // 100 requests per minute per IP
+  standardHeaders: true, // Use `RateLimit-*` headers
+  legacyHeaders: false, // Disable `X-RateLimit-*` headers
+  handler: (req, res) => {
+    res.status(429).json({
+      error: 'Too many requests, slow down!'
+    })
   }
 })
 
