@@ -6,49 +6,171 @@
   <title>Todo App</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(60, 72, 100, 0.15);
+      padding: 32px 24px 24px 24px;
     }
     h1 {
       text-align: center;
+      color: #4f46e5;
+      letter-spacing: 2px;
+      margin-bottom: 28px;
+      font-weight: 700;
+      font-size: 2.2rem;
     }
     form {
-      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+      background: #f1f5f9;
+      padding: 18px 16px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.04);
     }
-    input, button {
-      padding: 10px;
-      margin: 5px;
+    input[type="text"] {
+      border: 1px solid #c7d2fe;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+      background: #fff;
     }
-    ul {
+    input[type="text"]:focus {
+      border-color: #6366f1;
+      background: #f0f9ff;
+    }
+    button[type="submit"] {
+      background: linear-gradient(90deg, #6366f1 60%, #818cf8 100%);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+    }
+    button[type="submit"]:hover {
+      background: linear-gradient(90deg, #4f46e5 60%, #6366f1 100%);
+      transform: translateY(-2px) scale(1.03);
+    }
+    ul#todoList {
       list-style-type: none;
       padding: 0;
+      margin: 0;
     }
     li {
-      margin: 10px 0;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      margin: 14px 0;
+      padding: 18px 16px;
+      border: 1px solid #e0e7ff;
+      border-radius: 10px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      gap: 8px;
+      background: #f8fafc;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.04);
+      position: relative;
+      transition: box-shadow 0.2s;
     }
-    .done {
+    li:hover {
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.10);
+    }
+    .todo-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.08rem;
+      font-weight: 500;
+    }
+    .todo-status {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #6366f1;
+      background: #eef2ff;
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin-left: auto;
+    }
+    .done .todo-main {
       text-decoration: line-through;
-      color: gray;
+      color: #a1a1aa;
+    }
+    .done .todo-status {
+      color: #a1a1aa;
+      background: #f3f4f6;
+    }
+    .todo-dates {
+      font-size: 0.85rem;
+      color: #64748b;
+      display: flex;
+      gap: 16px;
+    }
+    .todo-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .todo-actions button {
+      border: none;
+      border-radius: 5px;
+      padding: 7px 14px;
+      font-size: 0.97rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .todo-actions button:first-child {
+      background: #22d3ee;
+      color: #fff;
+    }
+    .todo-actions button:first-child:hover {
+      background: #06b6d4;
+    }
+    .todo-actions button:last-child {
+      background: #f87171;
+      color: #fff;
+    }
+    .todo-actions button:last-child:hover {
+      background: #ef4444;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 12px 4px;
+      }
+      li {
+        padding: 12px 8px;
+      }
+      form {
+        padding: 10px 6px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Todo App</h1>
-  <form id="todoForm">
-    <input type="text" id="title" placeholder="Todo title" required />
-    <input type="text" id="description" placeholder="Todo description" />
-    <button type="submit">Add Todo</button>
-  </form>
-  <ul id="todoList"></ul>
-
+  <div class="container">
+    <h1>Todo App</h1>
+    <form id="todoForm">
+      <input type="text" id="title" placeholder="Todo title" required />
+      <input type="text" id="description" placeholder="Todo description" />
+      <button type="submit">Add Todo</button>
+    </form>
+    <ul id="todoList"></ul>
+  </div>
   <script>
-    const API_BASE_URL = 'http://localhost:8080/api'; // Updated to point to Nginx
+    const API_BASE_URL = 'http://localhost:8080/api';
 
     // Fetch and display todos
     async function fetchTodos() {
@@ -57,16 +179,21 @@
       const todoList = document.getElementById('todoList');
       todoList.innerHTML = '';
       todos.forEach(todo => {
-        console.log(todo);
         const li = document.createElement('li');
         li.className = todo.done ? 'done' : '';
         li.innerHTML = `
-          <span>${todo.title} - ${todo.description || ''}</span>
-          <span>${todo.done ? 'Done' : 'Pending'}</span>
-          <span>${new Date(todo.createdAt).toLocaleString()}</span>
-          <span>${new Date(todo.updatedAt).toLocaleString()}</span>
-          <button onclick="markTodoDone('${todo.id}')">Mark Done</button>
-          <button onclick="deleteTodo('${todo.id}')">Delete</button>
+          <div class="todo-main">
+            <span>${todo.title}${todo.description ? ' - ' + todo.description : ''}</span>
+            <span class="todo-status">${todo.done ? 'Done' : 'Pending'}</span>
+          </div>
+          <div class="todo-dates">
+            <span>Created: ${new Date(todo.createdAt).toLocaleString()}</span>
+            <span>Updated: ${new Date(todo.updatedAt).toLocaleString()}</span>
+          </div>
+          <div class="todo-actions">
+            <button onclick="markTodoDone('${todo.id}')">Mark Done</button>
+            <button onclick="deleteTodo('${todo.id}')">Delete</button>
+          </div>
         `;
         todoList.appendChild(li);
       });
@@ -118,14 +245,12 @@
       fetchTodos();
     });
     // Handle form submission errors
-    // Ensure the event listener is only attached once
     const todoForm = document.getElementById('todoForm');
     todoForm.addEventListener('submit', async function handleSubmit(e) {
       e.preventDefault();
       try {
         const title = document.getElementById('title').value;
         const description = document.getElementById('description').value;
-        console.log('Adding todo:', { title, description });
         if (!title) {
           alert('Title is required');
           return;
