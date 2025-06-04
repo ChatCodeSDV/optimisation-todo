@@ -26,8 +26,10 @@ export const postTodo = async (
 
     // Add task to queue for PostgreSQL
     await addCreateTodoTask(title, description)
-    logger.info(`Todo created: ${JSON.stringify(todo)}`) // Log success
-    res.status(201).json({ message: 'Todo created in cache', todo })
+    logger.info(
+      `Todo created: ${JSON.stringify({ title: title, description: description })}`
+    ) // Log success
+    res.status(201).json({ message: 'Todo created' })
   } catch (err) {
     logger.error(`Error in POST /todos: ${err.message}`) // Log the error
     next(err)
@@ -68,8 +70,8 @@ export const patchTodoDone = async (
     // Add task to queue for PostgreSQL
     await addMarkTodoDoneTask(id)
 
-    logger.info(`Todo with ID ${id} marked as done in cache`) // Log success
-    res.status(200).json({ message: 'Todo marked as done in cache', todo })
+    logger.info(`Todo with ID ${id} marked as done`) // Log success
+    res.status(200).json({ message: 'Todo marked as done' })
   } catch (err) {
     next(err)
   }
@@ -93,8 +95,8 @@ export const deleteTodoController = async (
 
     // Add task to queue for PostgreSQL
     await addDeleteTodoTask(id)
-    logger.info(`Todo with ID ${id} deleted from cache`) // Log success
-    res.status(200).json({ message: 'Todo deleted from cache' })
+    logger.info(`Todo with ID ${id} deleted`) // Log success
+    res.status(200).json({ message: 'Todo deleted' })
   } catch (err) {
     logger.error(`Error in DELETE /todos/${req.params.id}: ${err.message}`) // Log the error
 
