@@ -10,6 +10,7 @@ dotenv.config()
 const app: Application = express()
 const host = process.env.HOST ?? 'localhost'
 const port = process.env.PORT ? Number(process.env.PORT) : 3000
+const instanceId = process.env.INSTANCE_ID ?? '1' // Unique instance ID for this server
 
 // Enable CORS
 app.use(
@@ -19,7 +20,7 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
   })
 )
-app.set('trust proxy', 1)
+app.set('trust proxy', 1) // Trust the first proxy for nginx load balancer
 
 app.use(compressionMiddleware) // Use compression middleware for response compression
 app.use(express.json()) // Middleware to parse JSON
@@ -31,5 +32,7 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 app.listen(port, () => {
-  console.log(`Server is available at http://${host}:${port}`)
+  console.log(
+    `Server instance n°${instanceId} is available at http://${host}:${port}`
+  )
 })

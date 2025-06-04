@@ -6,6 +6,8 @@ import {
   markTodoDoneInDb,
   deleteTodoInDb
 } from './postgres'
+import dotenv from 'dotenv'
+dotenv.config() // Load environment variables from .env file
 
 const redisClient = createClient({
   socket: {
@@ -18,8 +20,10 @@ redisClient.on('error', (err) => {
   console.error('Redis error:', err)
 })
 
+const instanceId = process.env.INSTANCE_ID ?? '1' // Unique instance ID for this server
+
 redisClient.connect().then(() => {
-  console.log('Connected to Redis.')
+  console.log(`Connected instance n°${instanceId} to Redis.`)
 })
 
 export default redisClient

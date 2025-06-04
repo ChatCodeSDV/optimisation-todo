@@ -5,6 +5,7 @@ module.exports = {
       script: './dist/index.js',
       instances: 'max',
       exec_mode: 'cluster',
+      instance_var: 'INSTANCE_ID',
       increment_var: 'PORT',
       env: {
         NODE_ENV: 'development',
