@@ -4,6 +4,8 @@ import cors from 'cors'
 import compressionMiddleware from './middleware/compression'
 import todosRouter from './routes/todo'
 import limiter from './middleware/rateLimiter'
+import './middleware/otel'
+import logger from './middleware/logger'
 
 dotenv.config()
 
@@ -32,7 +34,7 @@ app.get('/', (req: Request, res: Response) => {
 })
 
 app.listen(port, () => {
-  console.log(
+  logger.info(
     `Server instance n°${instanceId} is available at http://${host}:${port}`
   )
 })

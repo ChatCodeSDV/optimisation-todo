@@ -1,4 +1,5 @@
 import { Queue } from 'bullmq'
+import logger from '../middleware/logger'
 import { config } from 'dotenv'
 config() // Load environment variables from .env file
 
@@ -13,23 +14,43 @@ export async function addReportTask(taskData: {
   userId: number
   reportType: string
 }) {
-  await reportQueue.add('generateReport', taskData)
-  console.log(`Task added to queue: ${JSON.stringify(taskData)}`)
+  try {
+    await reportQueue.add('generateReport', taskData)
+    logger.info(`Task added to queue: ${JSON.stringify(taskData)}`)
+  } catch (error) {
+    logger.error(`Failed to add report task to queue: ${error}`)
+    throw error
+  }
 }
 
 export async function addCreateTodoTask(title: string, description?: string) {
-  await reportQueue.add('createTodo', { title, description })
-  console.log(`CreateTodo task added to queue: ${title}`)
+  try {
+    await reportQueue.add('createTodo', { title, description })
+    logger.info(`CreateTodo task added to queue: ${title}`)
+  } catch (error) {
+    logger.error(`Failed to add createTodo task to queue: ${error}`)
+    throw error
+  }
 }
 
 export async function addMarkTodoDoneTask(id: number) {
-  await reportQueue.add('markTodoDone', { id })
-  console.log(`MarkTodoDone task added to queue: ${id}`)
+  try {
+    await reportQueue.add('markTodoDone', { id })
+    logger.info(`MarkTodoDone task added to queue: ${id}`)
+  } catch (error) {
+    logger.error(`Failed to add markTodoDone task to queue: ${error}`)
+    throw error
+  }
 }
 
 export async function addDeleteTodoTask(todoId: number) {
-  await reportQueue.add('deleteTodo', { todoId })
-  console.log(`DeleteTodo task added to queue: ${todoId}`)
+  try {
+    await reportQueue.add('deleteTodo', { todoId })
+    logger.info(`DeleteTodo task added to queue: ${todoId}`)
+  } catch (error) {
+    logger.error(`Failed to add deleteTodo task to queue: ${error}`)
+    throw error
+  }
 }
 
 export default reportQueue

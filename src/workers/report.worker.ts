@@ -4,6 +4,9 @@ import {
   markTodoDoneInDb,
   deleteTodoInDb
 } from '../db/postgres'
+import logger from '../middleware/logger'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const reportWorker = new Worker(
   'reportQueue',
@@ -14,26 +17,26 @@ const reportWorker = new Worker(
       case 'createTodo': {
         const { title, description } = job.data
         const newTodo = await createTodoInDb(title, description)
-        console.log('Todo created:', newTodo)
+        logger.info('Todo created:', newTodo)
         break
       }
 
       case 'markTodoDone': {
         const { id } = job.data
         const updatedTodo = await markTodoDoneInDb(id)
-        console.log('Todo marked as done:', updatedTodo)
+        logger.info('Todo marked as done:', updatedTodo)
         break
       }
 
       case 'deleteTodo': {
         const { todoId } = job.data
         await deleteTodoInDb(todoId)
-        console.log(`Todo with ID ${todoId} deleted`)
+        logger.info(`Todo with ID ${todoId} deleted`)
         break
       }
 
       default:
-        console.error(`Unknown job type: ${job.name}`)
+        logger.error(`Unknown job type: ${job.name}`)
     }
   },
   {
@@ -45,9 +48,9 @@ const reportWorker = new Worker(
 )
 
 reportWorker.on('completed', (job) => {
-  console.log(`Job ${job.id} completed successfully`)
+  logger.info(`Job ${job.id} completed successfully`)
 })
 
 reportWorker.on('failed', (job, err) => {
-  console.error(`Job ${job.id} failed:`, err)
+  logger.error(`Job ${job.id} failed:`, err)
 })

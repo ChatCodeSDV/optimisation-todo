@@ -33,6 +33,8 @@ services:
       - postgrestodo
     networks:
       - backend
+    volumes:
+      - ./logs:/tmp/logs
 
   apache-frontend:
     image: httpd:latest
