@@ -81,12 +81,21 @@ services:
       - '9090:9090'
     networks:
       - backend
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle' # Allows config reloads without restart
+      - '--web.enable-remote-write-receiver' # Enables remote write endpoint for k6
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
       - '4000:3000'
+    depends_on:
+      - prometheus
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -94,6 +103,7 @@ services:
     volumes:
       - ./grafana/dashboards.json:/etc/grafana/provisioning/dashboards/dashboard.json
       - ./grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
       - ./grafana:/var/lib/grafana
     networks:
       - backend
@@ -105,7 +115,15 @@ services:
       - ./tests:/scripts
     networks:
       - backend
-    command: run /scripts/load.test.js
+    depends_on:
+      - prometheus
+      - pm2-cluster
+    ports:
+      - '6565:6565' # Expose the K6 Prometheus metrics endpoint
+    environment:
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write # Prometheus remote write endpoint
+      - K6_PROMETHEUS_RW_TREND_STATS=p(95),p(99),min,max # Custom trend stats
+    command: run --out experimental-prometheus-rw /scripts/load.test.js
 
 volumes:
   pgdata:

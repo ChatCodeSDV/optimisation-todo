@@ -6,6 +6,7 @@ import todosRouter from './routes/todo'
 import limiter from './middleware/rateLimiter'
 import './middleware/otel'
 import logger from './middleware/logger'
+import { idempotencyMiddleware } from './middleware/idempotency'
 
 dotenv.config()
 
@@ -19,13 +20,16 @@ app.use(
   cors({
     origin: '*', // Allow all origins (you can restrict this to specific domains)
     methods: ['GET', 'POST', 'PATCH', 'DELETE'], // Allowed HTTP methods
-    allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
+    allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key'] // Allowed headers
   })
 )
 app.set('trust proxy', 1) // Trust the first proxy for nginx load balancer
 
 app.use(compressionMiddleware) // Use compression middleware for response compression
 app.use(express.json()) // Middleware to parse JSON
+app.use((req, res, next) => {
+  idempotencyMiddleware(req, res, next).catch(next)
+})
 app.use(limiter) // Apply rate limiting middleware
 app.use('/api', todosRouter) // Mount the route
 

@@ -1,11 +1,7 @@
 import { createClient } from 'redis'
 import { Todo } from '../models/todo.model'
-import {
-  getTodosFromDb,
-  createTodoInDb,
-  markTodoDoneInDb,
-  deleteTodoInDb
-} from './postgres'
+import { getTodosFromDb } from './postgres'
+import logger from '../middleware/logger'
 import dotenv from 'dotenv'
 dotenv.config() // Load environment variables from .env file
 
@@ -17,13 +13,13 @@ const redisClient = createClient({
 })
 
 redisClient.on('error', (err) => {
-  console.error('Redis error:', err)
+  logger.error('Redis error:', err)
 })
 
 const instanceId = process.env.INSTANCE_ID ?? '1' // Unique instance ID for this server
 
 redisClient.connect().then(() => {
-  console.log(`Connected instance n°${instanceId} to Redis.`)
+  logger.info(`Connected instance n°${instanceId} to Redis.`)
 })
 
 export default redisClient
@@ -35,8 +31,7 @@ export async function getTodos(): Promise<Todo[]> {
   // Try to get from Redis cache
   const cached = await redisClient.get(TODOS_CACHE_KEY)
   if (cached) {
-    const cachedStr = typeof cached === 'string' ? cached : cached.toString()
-    return JSON.parse(cachedStr) as Todo[]
+    return JSON.parse(cached) as Todo[]
   }
   // If not in cache, get from DB and cache it
   const todos = await getTodosFromDb()
@@ -44,26 +39,6 @@ export async function getTodos(): Promise<Todo[]> {
   return todos
 }
 
-export async function createTodo(
-  title: string,
-  description?: string
-): Promise<Todo> {
-  const todo = await createTodoInDb(title, description ?? undefined)
-  // Invalidate cache
-  await redisClient.del(TODOS_CACHE_KEY)
-  return todo
-}
-
-export async function markTodoDone(id: number): Promise<Todo | null> {
-  const todo = await markTodoDoneInDb(id.toString())
-  // Invalidate cache
-  await redisClient.del(TODOS_CACHE_KEY)
-  return todo
-}
-
-export async function deleteTodo(id: number): Promise<void> {
-  // Delete from DB (not implemented in this snippet)
-  await deleteTodoInDb(id.toString())
-  // Invalidate cache
+export async function deleteTodos(): Promise<void> {
   await redisClient.del(TODOS_CACHE_KEY)
 }

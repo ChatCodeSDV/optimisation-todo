@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { getTodos, createTodo, markTodoDone, deleteTodo } from '../db/redis'
+import { getTodos, deleteTodos } from '../db/redis'
 import {
   addCreateTodoTask,
   addMarkTodoDoneTask,
@@ -22,13 +22,14 @@ export const postTodo = async (
       return
     }
 
-    // Add to cache immediately
-    const todo = await createTodo(title, description)
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addCreateTodoTask(title, description)
-    logger.info(`Todo created: ${JSON.stringify(todo)}`) // Log success
-    res.status(201).json({ message: 'Todo created in cache', todo })
+    logger.info(
+      `Todo created: ${JSON.stringify({ title: title, description: description })}`
+    ) // Log success
+    res.status(201).json({ message: 'Todo created' })
   } catch (err) {
     logger.error(`Error in POST /todos: ${err.message}`) // Log the error
     next(err)
@@ -64,19 +65,13 @@ export const patchTodoDone = async (
       return
     }
 
-    // Update cache immediately
-    const todo = await markTodoDone(id)
-    if (!todo) {
-      logger.warn(`Todo with ID ${id} not found in cache`) // Log a warning
-      res.status(404).json({ error: 'Todo not found in cache' })
-      return
-    }
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addMarkTodoDoneTask(id)
 
-    logger.info(`Todo with ID ${id} marked as done in cache`) // Log success
-    res.status(200).json({ message: 'Todo marked as done in cache', todo })
+    logger.info(`Todo with ID ${id} marked as done`) // Log success
+    res.status(200).json({ message: 'Todo marked as done' })
   } catch (err) {
     next(err)
   }
@@ -96,13 +91,12 @@ export const deleteTodoController = async (
       return
     }
 
-    // Delete from cache immediately
-    await deleteTodo(id)
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addDeleteTodoTask(id)
-    logger.info(`Todo with ID ${id} deleted from cache`) // Log success
-    res.status(200).json({ message: 'Todo deleted from cache' })
+    logger.info(`Todo with ID ${id} deleted`) // Log success
+    res.status(200).json({ message: 'Todo deleted' })
   } catch (err) {
     logger.error(`Error in DELETE /todos/${req.params.id}: ${err.message}`) // Log the error
 

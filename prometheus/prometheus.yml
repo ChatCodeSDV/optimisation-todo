@@ -1,17 +1,28 @@
 global:
-  scrape_interval: 15s # Intervalle de collecte des métriques
+  scrape_interval: 15s # How frequently to scrape targets by default
+  evaluation_interval: 15s # How frequently to evaluate rules
 
 scrape_configs:
+  - job_name: 'prometheus' # Self-monitoring configuration
+    static_configs:
+      - targets: ['localhost:9090'] # Prometheus's own metrics endpoint
+
   - job_name: 'todo-api'
     static_configs:
       - targets:
-          - 'localhost:3000'
-          - 'localhost:3001'
-          - 'localhost:3002'
-          - 'localhost:3003'
-          - 'localhost:3004'
-          - 'localhost:3005'
-          - 'localhost:3006'
-          - 'localhost:3007'
-          - 'localhost:3008'
-          - 'localhost:3009'
+        - pm2-cluster:3000
+        - pm2-cluster:3001
+        - pm2-cluster:3002
+        - pm2-cluster:3003
+        - pm2-cluster:3004
+        - pm2-cluster:3005
+        - pm2-cluster:3006
+        - pm2-cluster:3007
+        - pm2-cluster:3008
+        - pm2-cluster:3009
+
+  - job_name: 'k6' # Configuration to scrape k6 metrics
+    static_configs:
+      - targets: ['k6:6565'] # k6's metrics endpoint (using Docker service name)
+    scrape_interval: 5s # More frequent scraping for k6 during tests
+    metrics_path: /metrics # Path where metrics are exposed

@@ -1,4 +1,3 @@
-/*eslint import/no-unresolved: [2, { ignore: ['^k6.*'] }]*/
 import http from 'k6/http'
 import { check, sleep } from 'k6'
 

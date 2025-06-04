@@ -51,9 +51,6 @@ COPY . .
 # Run the build script.
 RUN pnpm run build
 
-# Rebuild better-sqlite3 native bindings in the build stage
-RUN pnpm rebuild better-sqlite3
-
 ################################################################################
 # Create a new stage to run the application with minimal runtime dependencies
 # where the necessary files are copied from the build stage.
@@ -72,18 +69,9 @@ COPY --from=build /usr/src/app/dist ./dist
 # Copy the pm2 configuration file.
 COPY --from=build /usr/src/app/ecosystem.config.js ./ecosystem.config.js
 
-# Copy rebuilt better-sqlite3 native bindings from build stage
-COPY --from=build /usr/src/app/node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3/build ./node_modules/.pnpm/better-sqlite3@11.10.0/node_modules/better-sqlite3/build
-
 # Expose the ports that the application listens on.
 # The number of ports exposed should match the number of PM2 instances defined by the "max" setting.
 EXPOSE 3000-3009
-
-# Do a ls to verify the contents of the current directory and the dist directory.
-RUN ls -la ./ && ls -la ./dist
-
-# Rebuild better-sqlite3 using pnpm
-RUN pnpm rebuild better-sqlite3
 
 # Run the application as a non-root user.
 USER node

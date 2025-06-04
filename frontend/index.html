@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +21,7 @@
       box-shadow: 0 8px 32px rgba(60, 72, 100, 0.15);
       padding: 32px 24px 24px 24px;
     }
+
     h1 {
       text-align: center;
       color: #4f46e5;
@@ -28,6 +30,7 @@
       font-weight: 700;
       font-size: 2.2rem;
     }
+
     form {
       display: flex;
       flex-direction: column;
@@ -67,11 +70,13 @@
       background: linear-gradient(90deg, #4f46e5 60%, #6366f1 100%);
       transform: translateY(-2px) scale(1.03);
     }
+
     ul#todoList {
       list-style-type: none;
       padding: 0;
       margin: 0;
     }
+
     li {
       margin: 14px 0;
       padding: 18px 16px;
@@ -104,6 +109,7 @@
       padding: 2px 8px;
       margin-left: auto;
     }
+
     .done .todo-main {
       text-decoration: line-through;
       color: #a1a1aa;
@@ -159,6 +165,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Todo App</h1>
@@ -201,8 +208,13 @@
 
     // Mark a todo as done
     async function markTodoDone(id) {
+      const idempotencyKey = crypto.randomUUID();
+
       await fetch(`${API_BASE_URL}/todos/${id}/done`, {
         method: 'PATCH',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        }
       });
       fetchTodos();
     }
@@ -255,9 +267,12 @@
           alert('Title is required');
           return;
         }
+
+        const idempotencyKey = crypto.randomUUID();
+
         await fetch(`${API_BASE_URL}/todos`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
           body: JSON.stringify({ title, description }),
         });
         todoForm.reset();
@@ -271,4 +286,5 @@
     fetchTodos();
   </script>
 </body>
+
 </html>

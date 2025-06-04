@@ -12,6 +12,7 @@ DS_STORE
 /grafana/*
 !/grafana/dashboards.json
 !/grafana/dashboards.yml
+!/grafana/datasources.yml
 
 logs/*
 !logs/.keep
