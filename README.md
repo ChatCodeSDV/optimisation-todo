@@ -8,6 +8,7 @@
   - [Project members](#project-members)
   - [Instructions](#instructions)
     - [Prerequisites](#prerequisites)
+    - [Docker images used](#docker-images-used)
     - [Installation and Usage](#installation-and-usage)
     - [Coding practices](#coding-practices)
 
@@ -18,8 +19,8 @@ This repository contains a simple Todo API built with express and Typescript and
 - The project uses docker compose to launch all of the necessary services.
 - It also uses PM2 in order to clusterize the API and handle process management in a single docker container.
 - NGINX is used in order to load balance the requests between the different instances of the API from the front.
-Redis manages caching and BullMQ does task queueing, with SQLite as the persistent database.
-- A simple Apache html frontend is included to demonstrate the API usage, which can be accessed at `http://localhost:80`.
+Redis manages caching and BullMQ does task queueing, with postgres as the persistent database.
+- A simple Apache html file frontend is included to demonstrate the API usage, which can be accessed at `http://localhost:80`.
 - Grafana and prometheus are included for monitoring and metrics collection and K6 is used for load testing the API.
 - The API is designed to handle basic CRUD operations for todo items, with caching to improve performance and reduce database load. It supports idempotency for task queueing using BullMQ, ensuring that tasks are processed reliably without duplication.
 - It has schema validation using ajv, uses express-rate-limiter to prevent abuse, compression with a gzip middleware, has logging with Winston, and open Telemetry for distributed tracing with Prometheus.
@@ -50,34 +51,58 @@ Before you begin, ensure you have the following installed on your machine:
 
 Make sure you have access to the command line and the necessary permissions to run Docker commands.
 
+### Docker images used
+
+The project uses the following Docker images:
+
+- **node:20.14.0-alpine** – Runs the Express + TypeScript API server.
+- **nginx:latest** – Acts as a reverse proxy and load balancer for the API instances.
+- **redis:latest** – Provides caching and is used by BullMQ for task queueing.
+- **postgres:latest** – Used as the persistent database for todo items.
+- **grafana/grafana:latest** – For monitoring and visualizing metrics.
+- **prom/prometheus** – Collects and stores metrics for monitoring.
+- **httpd:latest** – Serves the static HTML frontend.
+
+These images are orchestrated using Docker Compose to provide a complete development and testing environment.
+
 ### Installation and Usage
 
 To set up and run the Todo API optimisation project, follow these steps:
 
-1. Clone the repository:
+1. Install globally pnpm if you haven't already:
+
+   ```bash
+   npm install -g pnpm
+   ```
+
+   This will allow you to use `pnpm` commands in your terminal.
+
+2. Clone the repository:
 
    ```bash
    git clone git@github.com:ChatCodeSDV/optimisation-todo.git
     cd optimisation-todo
     ```
 
-2. Install dependencies:
+3. Install dependencies:
 
    ```bash
    pnpm install
    ```
 
-3. Build the services using Docker Compose:
+4. Build the services using Docker Compose:
 
    ```bash
-   docker-compose up --build
+   docker compose up --build
    # Or using pnpm script
     pnpm docker:start
    ```
 
-4. Access the API:
+5. Access the API:
 
-Open your web browser and navigate to `http://localhost:3000` to access the API. Or the load balancer at `http://localhost:80` to access the API through NGINX since it will load balance the requests to the different instances of the API.
+The frontend is served on port 80, and the first API instance is served on port 3000. The NGINX load balancer is set up to listen on port 8080.
+
+You can access the frontend at `http://localhost:80` and the API at `http://localhost:8080/api/todos`.
 
 ### Coding practices
 
