@@ -5,7 +5,7 @@ import {
   createTodoInDb,
   markTodoDoneInDb,
   deleteTodoInDb
-} from './sqlite'
+} from './postgres'
 
 const redisClient = createClient({
   socket: {

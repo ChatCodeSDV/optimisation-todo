@@ -25,7 +25,7 @@ services:
       PGUSER: todo
       PGPASSWORD: todo
       PGDATABASE: todo_db
-      PGPORT: 5432
+      PGPORT: 9091
     depends_on:
       - redis
       - prometheus
@@ -38,9 +38,9 @@ services:
       image: httpd:latest
       container_name: apache-frontend
       ports:
-        - "80:80" # Expose Apache on port 8080
+        - "80:80"
       volumes:
-        - ./frontend:/usr/local/apache2/htdocs/:ro # Serve the HTML frontend
+        - ./frontend:/usr/local/apache2/htdocs/:ro
       depends_on:
         - nginx
       networks:
@@ -53,8 +53,10 @@ services:
       POSTGRES_USER: todo
       POSTGRES_PASSWORD: todo
       POSTGRES_DB: todo_db
+      POSTGRES_PORT: 9091
     ports:
-      - "5432:5432"
+      - "9091:9091"
+    command: ["postgres", "-p", "9091"]
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -74,7 +76,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090" # Expose Prometheus on port 9090
+      - "9090:9090"
     networks:
       - backend
 
@@ -82,7 +84,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "4000:3000" # Expose Grafana on port 4000 to avoid conflicts with API cluster
+      - "4000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
