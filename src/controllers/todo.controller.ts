@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { getTodos, createTodo, markTodoDone, deleteTodo } from '../db/redis'
+import { getTodos, deleteTodos } from '../db/redis'
 import {
   addCreateTodoTask,
   addMarkTodoDoneTask,
@@ -19,13 +19,12 @@ export const postTodo = async (
       return
     }
 
-    // Add to cache immediately
-    const todo = await createTodo(title, description)
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addCreateTodoTask(title, description)
 
-    res.status(201).json({ message: 'Todo created in cache', todo })
+    res.status(201).json({ message: 'Todo created in cache' })
   } catch (err) {
     next(err)
   }
@@ -56,17 +55,12 @@ export const patchTodoDone = async (
       return
     }
 
-    // Update cache immediately
-    const todo = await markTodoDone(id)
-    if (!todo) {
-      res.status(404).json({ error: 'Todo not found in cache' })
-      return
-    }
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addMarkTodoDoneTask(id)
 
-    res.status(200).json({ message: 'Todo marked as done in cache', todo })
+    res.status(200).json({ message: 'Todo marked as done' })
   } catch (err) {
     next(err)
   }
@@ -84,13 +78,12 @@ export const deleteTodoController = async (
       return
     }
 
-    // Delete from cache immediately
-    await deleteTodo(id)
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addDeleteTodoTask(id)
 
-    res.status(200).json({ message: 'Todo deleted from cache' })
+    res.status(200).json({ message: 'Todo deleted' })
   } catch (err) {
     next(err)
   }
