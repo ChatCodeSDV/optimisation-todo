@@ -14,12 +14,12 @@
 
 ## Summary
 
-This repository contains a simple Todo API built with express and Typescript and uses different services in docker containers  :
+This repository contains a simple Todo API built with express and Typescript and uses different services in docker containers :
 
 - The project uses docker compose to launch all of the necessary services.
 - It also uses PM2 in order to clusterize the API and handle process management in a single docker container.
 - NGINX is used in order to load balance the requests between the different instances of the API from the front.
-Redis manages caching and BullMQ does task queueing, with postgres as the persistent database.
+  Redis manages caching and BullMQ does task queueing, with postgres as the persistent database.
 - A simple Apache html file frontend is included to demonstrate the API usage, which can be accessed at `http://localhost:80`.
 - Grafana and prometheus are included for monitoring and metrics collection and K6 is used for load testing the API.
 - The API is designed to handle basic CRUD operations for todo items, with caching to improve performance and reduce database load. It supports idempotency for task queueing using BullMQ, ensuring that tasks are processed reliably without duplication.
@@ -62,6 +62,7 @@ The project uses the following Docker images:
 - **grafana/grafana:latest** – For monitoring and visualizing metrics.
 - **prom/prometheus** – Collects and stores metrics for monitoring.
 - **httpd:latest** – Serves the static HTML frontend.
+- **grafana/k6** – Load testing and performance benchmarking for the API.
 
 These images are orchestrated using Docker Compose to provide a complete development and testing environment.
 
@@ -82,7 +83,7 @@ To set up and run the Todo API optimisation project, follow these steps:
    ```bash
    git clone git@github.com:ChatCodeSDV/optimisation-todo.git
     cd optimisation-todo
-    ```
+   ```
 
 3. Install dependencies:
 
@@ -103,6 +104,12 @@ To set up and run the Todo API optimisation project, follow these steps:
 The frontend is served on port 80, and the first API instance is served on port 3000. The NGINX load balancer is set up to listen on port 8080.
 
 You can access the frontend at `http://localhost:80` and the API at `http://localhost:8080/api/todos`.
+
+6. Start k6 tests:
+
+   ```bash
+   docker compose up k6
+   ```
 
 ### Coding practices
 

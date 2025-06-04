@@ -3,7 +3,7 @@ services:
     image: nginx:latest
     container_name: nginx-load-balancer
     ports:
-      - "8080:80"
+      - '8080:80'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000-3009:3000-3009" # Expose the API cluster on ports 3000 to 3009
+      - '3000-3009:3000-3009' # Expose the API cluster on ports 3000 to 3009
     environment:
       NODE_ENV: production
       REDIS_HOST: redis
@@ -35,16 +35,16 @@ services:
       - backend
 
   apache-frontend:
-      image: httpd:latest
-      container_name: apache-frontend
-      ports:
-        - "80:80"
-      volumes:
-        - ./frontend:/usr/local/apache2/htdocs/:ro
-      depends_on:
-        - nginx
-      networks:
-        - backend
+    image: httpd:latest
+    container_name: apache-frontend
+    ports:
+      - '80:80'
+    volumes:
+      - ./frontend:/usr/local/apache2/htdocs/:ro
+    depends_on:
+      - nginx
+    networks:
+      - backend
 
   postgrestodo:
     image: postgres:latest
@@ -55,8 +55,8 @@ services:
       POSTGRES_DB: todo_db
       POSTGRES_PORT: 9091
     ports:
-      - "9091:9091"
-    command: ["postgres", "-p", "9091"]
+      - '9091:9091'
+    command: ['postgres', '-p', '9091']
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -66,7 +66,7 @@ services:
     image: redis:latest
     container_name: redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
     networks:
       - backend
 
@@ -76,7 +76,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "9090:9090"
+      - '9090:9090'
     networks:
       - backend
 
@@ -84,7 +84,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "4000:3000"
+      - '4000:3000'
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -95,6 +95,15 @@ services:
       - ./grafana:/var/lib/grafana
     networks:
       - backend
+
+  k6:
+    image: grafana/k6
+    container_name: k6
+    volumes:
+      - ./tests:/scripts
+    networks:
+      - backend
+    command: run /scripts/load.test.js
 
 volumes:
   pgdata:
