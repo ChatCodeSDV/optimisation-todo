@@ -118,7 +118,9 @@
       fetchTodos();
     });
     // Handle form submission errors
-    document.getElementById('todoForm').addEventListener('submit', async (e) => {
+    // Ensure the event listener is only attached once
+    const todoForm = document.getElementById('todoForm');
+    todoForm.addEventListener('submit', async function handleSubmit(e) {
       e.preventDefault();
       try {
         const title = document.getElementById('title').value;
@@ -133,13 +135,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title, description }),
         });
-        document.getElementById('todoForm').reset();
+        todoForm.reset();
         fetchTodos();
       } catch (error) {
         console.error('Error adding todo:', error);
         alert('Failed to add todo. Please try again later.');
       }
-    });
+    }, { once: true });
     // Initial fetch
     fetchTodos();
   </script>

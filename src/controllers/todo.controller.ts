@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import { getTodos, createTodo, markTodoDone, deleteTodo } from '../db/redis'
+import {
+  addCreateTodoTask,
+  addMarkTodoDoneTask,
+  addDeleteTodoTask
+} from '../services/queue.service'
 
 export const postTodo = async (
   req: Request,
@@ -8,12 +13,19 @@ export const postTodo = async (
 ): Promise<void> => {
   try {
     const { title } = req.body
+    const description = req.body.description ?? ''
     if (!title) {
       res.status(400).json({ error: 'Title is required' })
       return
     }
-    const todo = await createTodo(title)
-    res.status(201).json(todo)
+
+    // Add to cache immediately
+    const todo = await createTodo(title, description)
+
+    // Add task to queue for PostgreSQL
+    await addCreateTodoTask(title, description)
+
+    res.status(201).json({ message: 'Todo created in cache', todo })
   } catch (err) {
     next(err)
   }
@@ -23,7 +35,7 @@ export const getTodosList = async (
   _req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const todos = await getTodos()
     res.json(todos)
@@ -43,12 +55,18 @@ export const patchTodoDone = async (
       res.status(400).json({ error: 'Invalid ID' })
       return
     }
+
+    // Update cache immediately
     const todo = await markTodoDone(id)
     if (!todo) {
-      res.status(404).json({ error: 'Todo not found' })
+      res.status(404).json({ error: 'Todo not found in cache' })
       return
     }
-    res.json(todo)
+
+    // Add task to queue for PostgreSQL
+    await addMarkTodoDoneTask(id)
+
+    res.status(200).json({ message: 'Todo marked as done in cache', todo })
   } catch (err) {
     next(err)
   }
@@ -65,8 +83,14 @@ export const deleteTodoController = async (
       res.status(400).json({ error: 'Invalid ID' })
       return
     }
+
+    // Delete from cache immediately
     await deleteTodo(id)
-    res.status(204).send()
+
+    // Add task to queue for PostgreSQL
+    await addDeleteTodoTask(id)
+
+    res.status(200).json({ message: 'Todo deleted from cache' })
   } catch (err) {
     next(err)
   }

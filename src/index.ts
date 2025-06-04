@@ -1,6 +1,7 @@
 import express, { Request, Response, Application } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
+import compressionMiddleware from './middleware/compression'
 import todosRouter from './routes/todo'
 import limiter from './middleware/rateLimiter'
 
@@ -18,7 +19,9 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
   })
 )
+app.set('trust proxy', 1)
 
+app.use(compressionMiddleware) // Use compression middleware for response compression
 app.use(express.json()) // Middleware to parse JSON
 app.use(limiter) // Apply rate limiting middleware
 app.use('/api', todosRouter) // Mount the route
