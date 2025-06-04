@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
-import { getTodos, createTodo, markTodoDone, deleteTodo } from '../db/redis'
+import { getTodos, deleteTodos } from '../db/redis'
 import {
   addCreateTodoTask,
   addMarkTodoDoneTask,
   addDeleteTodoTask
 } from '../services/queue.service'
+import logger from '../middleware/logger'
 
 export const postTodo = async (
   req: Request,
@@ -14,15 +15,23 @@ export const postTodo = async (
   try {
     const { title } = req.body
     const description = req.body.description ?? ''
+    logger.info(`POST /todos - Title: ${title}`)
+    if (!title) {
+      logger.warn('POST /todos - Missing title') // Log a warning
+      res.status(400).json({ error: 'Title is required' })
+      return
+    }
 
-    // Add to cache immediately
-    const todo = await createTodo(title, description)
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addCreateTodoTask(title, description)
-
-    res.status(201).json({ message: 'Todo created in cache', todo })
+    logger.info(
+      `Todo created: ${JSON.stringify({ title: title, description: description })}`
+    ) // Log success
+    res.status(201).json({ message: 'Todo created' })
   } catch (err) {
+    logger.error(`Error in POST /todos: ${err.message}`) // Log the error
     next(err)
   }
 }
@@ -33,9 +42,11 @@ export const getTodosList = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    logger.info('GET /todos - Fetching todos') // Log the request
     const todos = await getTodos()
     res.json(todos)
   } catch (err) {
+    logger.error(`Error in GET /todos: ${err.message}`) // Log the error
     next(err)
   }
 }
@@ -46,23 +57,21 @@ export const patchTodoDone = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    logger.info(`PATCH /todos/${req.params.id} - Marking as done`) // Log the request
     const id = parseInt(req.params.id, 10)
     if (isNaN(id)) {
+      logger.warn(`PATCH /todos/${req.params.id} - Invalid ID`) // Log a warning
       res.status(400).json({ error: 'Invalid ID' })
       return
     }
 
-    // Update cache immediately
-    const todo = await markTodoDone(id)
-    if (!todo) {
-      res.status(404).json({ error: 'Todo not found in cache' })
-      return
-    }
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addMarkTodoDoneTask(id)
 
-    res.status(200).json({ message: 'Todo marked as done in cache', todo })
+    logger.info(`Todo with ID ${id} marked as done`) // Log success
+    res.status(200).json({ message: 'Todo marked as done' })
   } catch (err) {
     next(err)
   }
@@ -75,19 +84,22 @@ export const deleteTodoController = async (
 ): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10)
+    logger.info(`DELETE /todos/${req.params.id} - ID: ${id}`) // Log the request
     if (isNaN(id)) {
+      logger.warn(`DELETE /todos/${req.params.id} - Invalid ID`) // Log a warning
       res.status(400).json({ error: 'Invalid ID' })
       return
     }
 
-    // Delete from cache immediately
-    await deleteTodo(id)
+    await deleteTodos()
 
     // Add task to queue for PostgreSQL
     await addDeleteTodoTask(id)
-
-    res.status(200).json({ message: 'Todo deleted from cache' })
+    logger.info(`Todo with ID ${id} deleted`) // Log success
+    res.status(200).json({ message: 'Todo deleted' })
   } catch (err) {
+    logger.error(`Error in DELETE /todos/${req.params.id}: ${err.message}`) // Log the error
+
     next(err)
   }
 }
@@ -98,6 +110,6 @@ export const handleError = (
   res: Response,
   _next: NextFunction
 ): void => {
-  console.error(err)
+  logger.error(`Unhandled error: ${err.message}`, { stack: err.stack })
   res.status(500).json({ error: 'Internal Server Error' })
 }

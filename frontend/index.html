@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,20 +10,26 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
+
     h1 {
       text-align: center;
     }
+
     form {
       margin-bottom: 20px;
     }
-    input, button {
+
+    input,
+    button {
       padding: 10px;
       margin: 5px;
     }
+
     ul {
       list-style-type: none;
       padding: 0;
     }
+
     li {
       margin: 10px 0;
       padding: 10px;
@@ -32,12 +39,14 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .done {
       text-decoration: line-through;
       color: gray;
     }
   </style>
 </head>
+
 <body>
   <h1>Todo App</h1>
   <form id="todoForm">
@@ -74,8 +83,13 @@
 
     // Mark a todo as done
     async function markTodoDone(id) {
+      const idempotencyKey = crypto.randomUUID();
+
       await fetch(`${API_BASE_URL}/todos/${id}/done`, {
         method: 'PATCH',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        }
       });
       fetchTodos();
     }
@@ -130,9 +144,12 @@
           alert('Title is required');
           return;
         }
+
+        const idempotencyKey = crypto.randomUUID();
+
         await fetch(`${API_BASE_URL}/todos`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
           body: JSON.stringify({ title, description }),
         });
         todoForm.reset();
@@ -146,4 +163,5 @@
     fetchTodos();
   </script>
 </body>
+
 </html>

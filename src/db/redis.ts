@@ -44,26 +44,6 @@ export async function getTodos(): Promise<Todo[]> {
   return todos
 }
 
-export async function createTodo(
-  title: string,
-  description?: string
-): Promise<Todo> {
-  const todo = await createTodoInDb(title, description ?? undefined)
-  // Invalidate cache
-  await redisClient.del(TODOS_CACHE_KEY)
-  return todo
-}
-
-export async function markTodoDone(id: number): Promise<Todo | null> {
-  const todo = await markTodoDoneInDb(id.toString())
-  // Invalidate cache
-  await redisClient.del(TODOS_CACHE_KEY)
-  return todo
-}
-
-export async function deleteTodo(id: number): Promise<void> {
-  // Delete from DB (not implemented in this snippet)
-  await deleteTodoInDb(id.toString())
-  // Invalidate cache
+export async function deleteTodos(): Promise<void> {
   await redisClient.del(TODOS_CACHE_KEY)
 }
