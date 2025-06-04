@@ -12,7 +12,7 @@
     "pm2:restart": "pm2 restart optimisation-todo",
     "pm2:logs": "pm2 logs optimisation-todo",
     "pm2:delete": "pm2 delete optimisation-todo",
-    "pm2:runtime": "pm2-runtime ecosystem.config.js",
+    "pm2:runtime": "pm2-runtime ecosystem.config.js --env production",
     "docker:build": "docker compose build",
     "docker:up": "docker compose up",
     "docker:down": "docker compose down",
@@ -40,8 +40,8 @@
     "express-jwt": "^8.5.1",
     "express-rate-limit": "^7.5.0",
     "opentelemetry": "^0.1.0",
+    "pg": "^8.16.0",
     "redis": "^5.1.1",
-    "sqlite3": "^5.1.7",
     "winston": "^3.17.0"
   },
   "devDependencies": {

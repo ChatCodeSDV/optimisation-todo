@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .done {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <h1>Todo App</h1>
+  <form id="todoForm">
+    <input type="text" id="title" placeholder="Todo title" required />
+    <input type="text" id="description" placeholder="Todo description" />
+    <button type="submit">Add Todo</button>
+  </form>
+  <ul id="todoList"></ul>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:8080/api'; // Updated to point to Nginx
+
+    // Fetch and display todos
+    async function fetchTodos() {
+      const response = await fetch(`${API_BASE_URL}/todos`);
+      const todos = await response.json();
+      const todoList = document.getElementById('todoList');
+      todoList.innerHTML = '';
+      todos.forEach(todo => {
+        console.log(todo);
+        const li = document.createElement('li');
+        li.className = todo.done ? 'done' : '';
+        li.innerHTML = `
+          <span>${todo.title} - ${todo.description || ''}</span>
+          <span>${todo.done ? 'Done' : 'Pending'}</span>
+          <span>${new Date(todo.createdAt).toLocaleString()}</span>
+          <span>${new Date(todo.updatedAt).toLocaleString()}</span>
+          <button onclick="markTodoDone('${todo.id}')">Mark Done</button>
+          <button onclick="deleteTodo('${todo.id}')">Delete</button>
+        `;
+        todoList.appendChild(li);
+      });
+    }
+
+    // Mark a todo as done
+    async function markTodoDone(id) {
+      await fetch(`${API_BASE_URL}/todos/${id}/done`, {
+        method: 'PATCH',
+      });
+      fetchTodos();
+    }
+
+    // Delete a todo
+    async function deleteTodo(id) {
+      if (confirm('Are you sure you want to delete this todo?')) {
+        await fetch(`${API_BASE_URL}/todos/${id}`, {
+          method: 'DELETE',
+        });
+        fetchTodos();
+      }
+    }
+    // Handle errors globally
+    window.addEventListener('error', (event) => {
+      console.error('An error occurred:', event.message);
+      alert('An unexpected error occurred. Please try again later.');
+    });
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      alert('An unexpected error occurred. Please try again later.');
+    });
+
+    // Handle network errors
+    async function handleNetworkError() {
+      try {
+        await fetchTodos();
+      } catch (error) {
+        console.error('Network error:', error);
+        alert('Failed to fetch todos. Please check your network connection.');
+      }
+    }
+    // Retry fetching todos on network error
+    window.addEventListener('offline', () => {
+      console.warn('You are offline. Retrying to fetch todos...');
+      handleNetworkError();
+    });
+    window.addEventListener('online', () => {
+      console.log('You are back online. Fetching todos...');
+      fetchTodos();
+    });
+    // Handle form submission errors
+    document.getElementById('todoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        console.log('Adding todo:', { title, description });
+        if (!title) {
+          alert('Title is required');
+          return;
+        }
+        await fetch(`${API_BASE_URL}/todos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description }),
+        });
+        document.getElementById('todoForm').reset();
+        fetchTodos();
+      } catch (error) {
+        console.error('Error adding todo:', error);
+        alert('Failed to add todo. Please try again later.');
+      }
+    });
+    // Initial fetch
+    fetchTodos();
+  </script>
+</body>
+</html>

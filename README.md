@@ -19,10 +19,11 @@ This repository contains a simple Todo API built with express and Typescript and
 - It also uses PM2 in order to clusterize the API and handle process management in a single docker container.
 - NGINX is used in order to load balance the requests between the different instances of the API from the front.
 Redis manages caching and BullMQ does task queueing, with SQLite as the persistent database.
+- A simple Apache html frontend is included to demonstrate the API usage, which can be accessed at `http://localhost:80`.
 - Grafana and prometheus are included for monitoring and metrics collection and K6 is used for load testing the API.
 - The API is designed to handle basic CRUD operations for todo items, with caching to improve performance and reduce database load. It supports idempotency for task queueing using BullMQ, ensuring that tasks are processed reliably without duplication.
 - It has schema validation using ajv, uses express-rate-limiter to prevent abuse, compression with a gzip middleware, has logging with Winston, and open Telemetry for distributed tracing with Prometheus.
-- Lastly it has JWT authentication for securing the API endpoints and with HTTPS with let's encrypt for secure communication.
+- Lastly it has JWT authentication for securing the API endpoints.
 
 It was created as a learning project to understand how to build a simple API with caching, task queueing, and load balancing and overall API optimisation in a M2 Dev lesson at Sup De Vinci.
 
