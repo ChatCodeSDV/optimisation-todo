@@ -8,7 +8,7 @@ export interface CreateTodoInput {
 export const createTodoSchema: JSONSchemaType<CreateTodoInput> = {
   type: 'object',
   properties: {
-    title: { type: 'string' },
+    title: { type: 'string', nullable: false },
     description: { type: 'string', nullable: true }
   },
   required: ['title'],
