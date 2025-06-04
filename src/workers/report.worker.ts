@@ -52,5 +52,9 @@ reportWorker.on('completed', (job) => {
 })
 
 reportWorker.on('failed', (job, err) => {
-  logger.error(`Job ${job.id} failed:`, err)
+  if (job) {
+    logger.error(`Job ${job.id} failed:`, err)
+  } else {
+    logger.error(`Job failed:`, err)
+  }
 })
