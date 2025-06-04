@@ -14,10 +14,6 @@ export const postTodo = async (
   try {
     const { title } = req.body
     const description = req.body.description ?? ''
-    if (!title) {
-      res.status(400).json({ error: 'Title is required' })
-      return
-    }
 
     // Add to cache immediately
     const todo = await createTodo(title, description)
