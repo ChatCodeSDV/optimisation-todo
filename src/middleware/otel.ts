@@ -9,7 +9,7 @@ import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 
-import logger from './logger'
+//import logger from './logger'
 
 // Prometheus Exporter for metrics
 /* const prometheusExporter = new PrometheusExporter({ port: 9464 }, () => {
