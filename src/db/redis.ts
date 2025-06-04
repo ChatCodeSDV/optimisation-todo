@@ -35,8 +35,7 @@ export async function getTodos(): Promise<Todo[]> {
   // Try to get from Redis cache
   const cached = await redisClient.get(TODOS_CACHE_KEY)
   if (cached) {
-    const cachedStr = typeof cached === 'string' ? cached : cached.toString()
-    return JSON.parse(cachedStr) as Todo[]
+    return JSON.parse(cached) as Todo[]
   }
   // If not in cache, get from DB and cache it
   const todos = await getTodosFromDb()
